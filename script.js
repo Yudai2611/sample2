@@ -1,6 +1,6 @@
 const https = require('https');
 
-const slackUrl = "https://hooks.slack.com/services/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";
+const slackUrl = "https://hooks.slack.com/services/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";
 const message = {
     text: "Hello, World! This script is running!"
 };
