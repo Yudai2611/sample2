@@ -38,9 +38,8 @@ jobs:
       - name: Send success message to Slack
         if: success()  # スクリプトが成功した場合のみ実行
         run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script executed successfully!"}' $env:SLACK_WEBHOOK_URL
-
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script executed successfully!"}' "${{ secrets.SLACK_WEBHOOK_URL }}"
       - name: Send failure message to Slack
         if: failure()  # スクリプトが失敗した場合のみ実行
         run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script execution failed!"}' $env:SLACK_WEBHOOK_URL
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script execution failed!"}'"${{ secrets.SLACK_WEBHOOK_URL }}"
