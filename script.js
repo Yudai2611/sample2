@@ -17,7 +17,7 @@ async function sendToSlack(message) {
 
 // メイン関数
 async function main() {
-    const message = "hello world"; // 送信するメッセージ
+    const message = "hello slack"; // 送信するメッセージ
     await sendToSlack(message); // Slackにメッセージを送信
 }
 
