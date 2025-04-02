@@ -3,7 +3,7 @@ name: Run Node.js Script
 on:
   schedule:
     - cron: '* * * * *'  # 毎分に実行（UTC時間）
-    workflow_dispatch:  # 手動トリガーを有効にする
+  workflow_dispatch:  # 手動トリガーを有効にする
 
 jobs:
   run-script:
