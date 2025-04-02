@@ -18,7 +18,12 @@ jobs:
           node-version: '20'  # 使用するNode.jsのバージョン
 
       - name: Install dependencies
-        run: npm install  # 必要な依存関係をインストール（package.jsonがある場合）
+        run: |
+          if [ -f package.json ]; then
+            npm install
+          else
+            echo "No package.json found, skipping npm install."
+          fi
 
       - name: Run script
         run: node script.js  # script.jsを実行
