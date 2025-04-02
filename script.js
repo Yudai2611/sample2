@@ -1,6 +1,13 @@
 // Slackにメッセージを送信する関数
 async function sendToSlack(message) {
     const slackUrl = process.env.SLACK_WEBHOOK_URL;
+
+    // SLACK_WEBHOOK_URLが設定されているか確認
+    if (!slackUrl) {
+        console.error('SLACK_WEBHOOK_URL is not defined. Please set it in your environment variables.');
+        return; // URLが未定義の場合は処理を中止
+    }
+
     const body = JSON.stringify({ text: message });
 
     try {
