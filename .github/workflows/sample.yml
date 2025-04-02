@@ -1,0 +1,35 @@
+name: Send Slack Notification
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  notify:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Send message to Slack
+        run: |
+          node -e "
+          const fetch = require('node-fetch');
+          const slackUrl = process.env.SLACK_WEBHOOK_URL;
+          const message = 'Hello, Slack!';
+          fetch(slackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: message }),
+          }).then(response => {
+            if (!response.ok) throw new Error('Slack error! status: ' + response.status);
+          }).catch(error => console.error('Error sending to Slack:', error));
+          "
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
