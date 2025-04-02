@@ -2,7 +2,8 @@ name: Run Node.js Script
 
 on:
   schedule:
-    - cron: '* * * * *'  # 毎時0分に実行（UTC時間）
+    - cron: '* * * * *'  # 毎分に実行（UTC時間）
+    workflow_dispatch:  # 手動トリガーを有効にする
 
 jobs:
   run-script:
