@@ -26,9 +26,21 @@ jobs:
           }
 
       - name: Run script
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}  # SlackのWebhook URLを環境変数として設定
         run: |
           if (Test-Path script.js) {
-            node script.js  # script.jsを実行
+            node script.js || { Write-Host "script.js execution failed"; exit 1; }
           } else {
             Write-Host "script.js not found, skipping script execution."
           }
+
+      - name: Send success message to Slack
+        if: success()  # スクリプトが成功した場合のみ実行
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script executed successfully!"}' $env:SLACK_WEBHOOK_URL
+
+      - name: Send failure message to Slack
+        if: failure()  # スクリプトが失敗した場合のみ実行
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Script execution failed!"}' $env:SLACK_WEBHOOK_URL
