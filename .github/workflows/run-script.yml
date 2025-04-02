@@ -1,0 +1,23 @@
+name: Run Node.js Script
+
+on:
+  schedule:
+    - cron: '* * * * *'  # 毎時0分に実行（UTC時間）
+
+jobs:
+  run-script:
+    runs-on: windows-latest  # Windows環境で実行
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'  # 使用するNode.jsのバージョン
+
+      - name: Install dependencies
+        run: npm install  # 必要な依存関係をインストール（package.jsonがある場合）
+
+      - name: Run script
+        run: node script.js  # script.jsを実行
