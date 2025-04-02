@@ -1,34 +1,25 @@
-const https = require('https');
+// Slackにメッセージを送信する関数
+async function sendToSlack(message) {
+    const slackUrl = "https://hooks.slack.com/services/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";
+    const body = JSON.stringify({ text: message });
 
-const slackUrl = "https://hooks.slack.com/services/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";
-const message = {
-    text: "Hello, World! This script is running!"
-};
-
-const data = JSON.stringify(message);
-
-const options = {
-    hostname: 'hooks.slack.com',
-    path: '/services/T0833P36XN1/B0854H09E0H/lotvEMaBxFBFm1JV0vJ44ZGc',
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Content-Length': data.length
+    try {
+        const response = await fetch(slackUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: body,
+        });
+        if (!response.ok) throw new Error(`Slack error! status: ${response.status}`);
+    } catch (error) {
+        console.error('Error sending to Slack:', error);
     }
-};
+}
 
-const req = https.request(options, (res) => {
-    console.log(`STATUS: ${res.statusCode}`);
-    res.setEncoding('utf8');
-    res.on('data', (d) => {
-        process.stdout.write(d);
-    });
-});
+// メイン関数
+async function main() {
+    const message = "hello world"; // 送信するメッセージ
+    await sendToSlack(message); // Slackにメッセージを送信
+}
 
-req.on('error', (e) => {
-    console.error(`Problem with request: ${e.message}`);
-});
-
-// データを送信
-req.write(data);
-req.end();
+// 関数を呼び出して実行
+main();
