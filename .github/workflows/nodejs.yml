@@ -1,0 +1,26 @@
+name: Run JavaScript Script
+
+on:
+  push:
+    branches:
+      - main  # mainブランチにプッシュされたときに実行
+  workflow_dispatch:  # 手動で実行できるようにする
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # 使用するNode.jsのバージョン
+
+      - name: Install dependencies
+        run: npm install  # 必要な依存関係があればここでインストール
+
+      - name: Run script
+        run: node index.js  # スクリプトを実行
