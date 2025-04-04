@@ -1,18 +1,17 @@
+// 更新された項目を強調する
+
 // 検索する日付を指定する。
 const cmStartDt = new Date("2025-03-24");
 const cmEndDt = new Date("2025-04-18");
-const pmStartDt = new Date("2025-02-19");
-const pmEndDt = new Date("2025-03-21");
+const pmStartDt = new Date("2025-01-01"); //
+const pmEndDt = new Date(cmStartDt);
+pmEndDt.setDate(pmEndDt.getDate() - 1);
 
-// 通知する時間を指定する。
-const hour = 13; //0~24
-const minute = 30; //0~59
-
-const startId = 1100; // 要削除
+const startId = 1000; // 要削除
 const endId = 1200; // 要削除
 
 // プロジェクトとステータスの条件
-const targetProject = { name: '問い合わせ（テスト）' };
+const targetProject = { name: '問い合わせ' };
 const targetStatusNew = { id: 1, name: '新規' };
 const targetStatusEnd = { id: 5, name: '終了' };
 
@@ -30,7 +29,7 @@ async function fetchData(id) {
 
 // Slackにメッセージを送信する関数
 async function sendToSlack(message) {
-    const slackUrl = process.env.SLACK_WEBHOOK_URL;
+    const slackUrl = "https://hooks.slack.com/services/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";
     const body = JSON.stringify({ text: message });
 
     try {
@@ -46,8 +45,12 @@ async function sendToSlack(message) {
 }
 
 // 一致するかどうかを判定する関数
-function isMatching(issue, status) {
+function isMatching1(issue, status) {
     return issue.project.name === targetProject.name && issue.status.id === status.id;
+}
+
+function isMatching2(issue) {
+    return issue.project.name === targetProject.name;
 }
 
 // メイン関数
@@ -64,7 +67,7 @@ async function findIssues() {
         const assignedTo = issue.assigned_to ? issue.assigned_to.name : "未割り当て";
 
         // 未対応
-        if (isMatching(issue, targetStatusNew)) {
+        if (isMatching1(issue, targetStatusNew)) {
             if (issueStartDate >= cmStartDt && issueStartDate <= cmEndDt) {
                 count.NDone.period1++;
                 store.NDone.period1.push(`[未対応][${assignedTo.split(' ')[0]}] ${issue.subject}`);
@@ -74,7 +77,7 @@ async function findIssues() {
             }
         }
         // 対応中
-        else if (issue.status.id !== targetStatusNew.id && issue.status.id !== targetStatusEnd.id) {
+        else if (isMatching2(issue) && issue.status.id !== targetStatusNew.id && issue.status.id !== targetStatusEnd.id) {
             if (issueStartDate >= cmStartDt && issueStartDate <= cmEndDt) {
                 count.Doing.period1++;
                 store.Doing.period1.push(`[対応中][${assignedTo.split(' ')[0]}] ${issue.subject}`);
@@ -84,7 +87,7 @@ async function findIssues() {
             }
         }
         // 完了
-        if (isMatching(issue, targetStatusEnd)) {
+        if (isMatching1(issue, targetStatusEnd)) {
             const issueEndDate = new Date(issue.custom_fields.find(field => field.name === "完了日")?.value);
             if (issueStartDate >= pmStartDt && issueStartDate <= pmEndDt && issueEndDate >= cmStartDt && issueEndDate <= cmEndDt) {
                 count.Done.period2++;
