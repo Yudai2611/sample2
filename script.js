@@ -27,7 +27,7 @@ async function fetchData(id) {
 
 // Slackにメッセージを送信する関数
 async function sendToSlack(message) {
-    const slackUrl = "https://hooks.slack.com/services/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";
+    const slackUrl = process.env.SLACK_WEBHOOK_URL;
     const body = JSON.stringify({ text: message });
 
     try {
