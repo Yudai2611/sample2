@@ -1,17 +1,15 @@
-// 更新された項目を強調する
-
 // 検索する日付を指定する。
 const cmStartDt = new Date("2025-03-24");
 const cmEndDt = new Date("2025-04-18");
-const pmStartDt = new Date("2025-01-01"); //
+const pmStartDt = new Date("2025-01-01"); //適宜調整
 const pmEndDt = new Date(cmStartDt);
 pmEndDt.setDate(pmEndDt.getDate() - 1);
 
-const startId = 1000; // 要削除
-const endId = 1200; // 要削除
+const startId = 1000; //適宜調整
+const endId = 1200; //適宜調整
 
 // プロジェクトとステータスの条件
-const targetProject = { name: '問い合わせ' };
+const targetProject = { name: '問い合わせ（テスト）' };
 const targetStatusNew = { id: 1, name: '新規' };
 const targetStatusEnd = { id: 5, name: '終了' };
 
@@ -29,7 +27,7 @@ async function fetchData(id) {
 
 // Slackにメッセージを送信する関数
 async function sendToSlack(message) {
-    const slackUrl = process.env.SLACK_WEBHOOK_URL;
+    const slackUrl = "https://hooks.slack.com/services/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";
     const body = JSON.stringify({ text: message });
 
     try {
@@ -53,6 +51,16 @@ function isMatching2(issue) {
     return issue.project.name === targetProject.name;
 }
 
+// 日付を比較する関数
+function isUpdatedRecently(updatedOn) {
+    const updatedDate = new Date(updatedOn);
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    return updatedDate.toDateString() === today.toDateString() || updatedDate.toDateString() === yesterday.toDateString();
+}
+
 // メイン関数
 async function findIssues() {
     // countとstoreを初期化
@@ -65,25 +73,26 @@ async function findIssues() {
 
         const issueStartDate = new Date(issue.start_date);
         const assignedTo = issue.assigned_to ? issue.assigned_to.name : "未割り当て";
+        const isRecentlyUpdated = isUpdatedRecently(issue.updated_on);
 
         // 未対応
         if (isMatching1(issue, targetStatusNew)) {
             if (issueStartDate >= cmStartDt && issueStartDate <= cmEndDt) {
                 count.NDone.period1++;
-                store.NDone.period1.push(`[未対応][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.NDone.period1.push(`${isRecentlyUpdated ? '*' : ''}[未対応][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             } else if (issueStartDate >= pmStartDt && issueStartDate <= pmEndDt) {
                 count.NDone.period2++;
-                store.NDone.period2.push(`[未対応][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.NDone.period2.push(`${isRecentlyUpdated ? '*' : ''}[未対応][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             }
         }
         // 対応中
         else if (isMatching2(issue) && issue.status.id !== targetStatusNew.id && issue.status.id !== targetStatusEnd.id) {
             if (issueStartDate >= cmStartDt && issueStartDate <= cmEndDt) {
                 count.Doing.period1++;
-                store.Doing.period1.push(`[対応中][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.Doing.period1.push(`${isRecentlyUpdated ? '*' : ''}[対応中][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             } else if (issueStartDate >= pmStartDt && issueStartDate <= pmEndDt) {
                 count.Doing.period2++;
-                store.Doing.period2.push(`[対応中][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.Doing.period2.push(`${isRecentlyUpdated ? '*' : ''}[対応中][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             }
         }
         // 完了
@@ -91,10 +100,10 @@ async function findIssues() {
             const issueEndDate = new Date(issue.custom_fields.find(field => field.name === "完了日")?.value);
             if (issueStartDate >= pmStartDt && issueStartDate <= pmEndDt && issueEndDate >= cmStartDt && issueEndDate <= cmEndDt) {
                 count.Done.period2++;
-                store.Done.period2.push(`[完了][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.Done.period2.push(`${isRecentlyUpdated ? '*' : ''}[完了][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             } else if (issueStartDate >= cmStartDt && issueStartDate <= cmEndDt) {
                 count.Done.period1++;
-                store.Done.period1.push(`[完了][${assignedTo.split(' ')[0]}] ${issue.subject}`);
+                store.Done.period1.push(`${isRecentlyUpdated ? '*' : ''}[完了][${assignedTo.split(' ')[0]}] ${issue.subject}${isRecentlyUpdated ? '(更新)*' : ''}`);
             }
         }
     }
